@@ -86,6 +86,8 @@ func Setup() *gin.Engine {
 				users.GET("/:id", userHandler.GetUser)
 				users.PUT("/:id", userHandler.UpdateUser)
 				users.DELETE("/:id", userHandler.DeleteUser)
+				users.GET("/check-username", userHandler.CheckUsernameAvailability)
+				users.GET("/check-email", userHandler.CheckEmailAvailability)
 			}
 		}
 

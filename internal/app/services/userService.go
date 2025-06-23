@@ -235,6 +235,42 @@ func (s *UserService) DeleteUser(id uint) error {
 	return db.Delete(&user).Error
 }
 
+// CheckUsernameAvailability verifica si un username está disponible
+func (s *UserService) CheckUsernameAvailability(username string) (bool, error) {
+	var count int64
+	
+	// Contar cuántos usuarios tienen ese username
+	err := database.DB.Model(&models.User{}).
+		Where("user_name = ?", username).
+		Count(&count).Error
+		
+	if err != nil {
+		return false, utils.NewInternalServerError("Error verificando disponibilidad del username")
+	}
+	
+	// Si count es 0, está disponible (true)
+	// Si count > 0, no está disponible (false)
+	return count == 0, nil
+}
+
+// CheckEmailAvailability verifica si un email está disponible
+func (s *UserService) CheckEmailAvailability(email string) (bool, error) {
+	var count int64
+	
+	// Contar cuántos usuarios tienen ese email
+	err := database.DB.Model(&models.User{}).
+		Where("email = ?", email).
+		Count(&count).Error
+		
+	if err != nil {
+		return false, utils.NewInternalServerError("Error verificando disponibilidad del email")
+	}
+	
+	// Si count es 0, está disponible (true)
+	// Si count > 0, no está disponible (false)
+	return count == 0, nil
+}
+
 // toUserResponse convierte un modelo User a UserResponse
 func (s *UserService) toUserResponse(user *models.User) *dto.UserResponse {
 	return &dto.UserResponse{

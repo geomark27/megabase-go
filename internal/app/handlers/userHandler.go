@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"megabaseGo/internal/app/dto"
 	"megabaseGo/internal/app/services"
@@ -24,19 +25,17 @@ func NewUserHandler() *UserHandler {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var req dto.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		// Usamos el nuevo manejador de errores
 		utils.HandleGinError(c, err)
 		return
 	}
 
 	user, err := h.userService.CreateUser(&req)
 	if err != nil {
-		// También lo usamos para errores del servicio
 		utils.HandleGinError(c, err)
 		return
 	}
 
-	// Usamos el nuevo helper de éxito, ¡igual que en Laravel!
+	// CREATE: Mantiene mensaje
 	utils.SendSuccess(c, http.StatusCreated, "Usuario creado correctamente", gin.H{"user": user})
 }
 
@@ -56,8 +55,8 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 		return
 	}
 
-	// Usamos SendSuccess también aquí
-	utils.SendSuccess(c, http.StatusOK, "Usuarios obtenidos correctamente", gin.H{
+	// GET: Solo status y data (sin mensaje)
+	utils.SendData(c, http.StatusOK, gin.H{
 		"users": users,
 		"count": len(users),
 	})
@@ -77,7 +76,8 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	utils.SendSuccess(c, http.StatusOK, "Usuario obtenido correctamente", gin.H{"user": user})
+	// GET: Solo status y data (sin mensaje)
+	utils.SendData(c, http.StatusOK, gin.H{"user": user})
 }
 
 func (h *UserHandler) UpdateUser(c *gin.Context) {
@@ -100,6 +100,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// UPDATE: Mantiene mensaje
 	utils.SendSuccess(c, http.StatusOK, "Usuario actualizado correctamente", gin.H{"user": user})
 }
 
@@ -117,6 +118,63 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	// Para respuestas sin datos, simplemente pasamos nil
+	// DELETE: Mantiene mensaje
 	utils.SendSuccess(c, http.StatusOK, "Usuario eliminado correctamente", nil)
 }
+
+// CheckUsernameAvailability maneja la verificación de username
+func (h *UserHandler) CheckUsernameAvailability(c *gin.Context) {
+	username := c.Query("username")
+	
+	// Validar que el username no esté vacío
+	if username == "" {
+		utils.HandleGinError(c, utils.NewBadRequestError("Username es requerido"))
+		return
+	}
+	
+	// Validar longitud mínima
+	if len(username) < 3 {
+		utils.HandleGinError(c, utils.NewBadRequestError("Username debe tener al menos 3 caracteres"))
+		return
+	}
+	
+	available, err := h.userService.CheckUsernameAvailability(username)
+	if err != nil {
+		utils.HandleGinError(c, err)
+		return
+	}
+	
+	// Respuesta simple que espera el frontend
+	utils.SendData(c, http.StatusOK, gin.H{
+		"available": available,
+	})
+}
+
+// CheckEmailAvailability maneja la verificación de email
+func (h *UserHandler) CheckEmailAvailability(c *gin.Context) {
+	email := c.Query("email")
+	
+	// Validar que el email no esté vacío
+	if email == "" {
+		utils.HandleGinError(c, utils.NewBadRequestError("Email es requerido"))
+		return
+	}
+	
+	// Validación básica de formato email
+	if !strings.Contains(email, "@") {
+		utils.HandleGinError(c, utils.NewBadRequestError("Formato de email inválido"))
+		return
+	}
+	
+	available, err := h.userService.CheckEmailAvailability(email)
+	if err != nil {
+		utils.HandleGinError(c, err)
+		return
+	}
+	
+	// Respuesta simple que espera el frontend
+	utils.SendData(c, http.StatusOK, gin.H{
+		"available": available,
+	})
+}
+

@@ -34,6 +34,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 		return
 	}
 
+	// CREATE: Mantiene mensaje
 	utils.SendSuccess(c, http.StatusCreated, "Rol creado exitosamente", gin.H{"role": role})
 }
 
@@ -46,7 +47,8 @@ func (h *RoleHandler) GetRoles(c *gin.Context) {
 		return
 	}
 
-	utils.SendSuccess(c, http.StatusOK, "Roles obtenidos correctamente", gin.H{
+	// GET: Solo status y data (sin mensaje)
+	utils.SendData(c, http.StatusOK, gin.H{
 		"roles": roles,
 		"count": len(roles),
 	})
@@ -66,7 +68,8 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 		return
 	}
 
-	utils.SendSuccess(c, http.StatusOK, "Rol obtenido correctamente", gin.H{"role": role})
+	// GET: Solo status y data (sin mensaje)
+	utils.SendData(c, http.StatusOK, gin.H{"role": role})
 }
 
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
@@ -89,6 +92,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		return
 	}
 
+	// UPDATE: Mantiene mensaje
 	utils.SendSuccess(c, http.StatusOK, "Rol actualizado correctamente", gin.H{"role": role})
 }
 
@@ -106,5 +110,6 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 		return
 	}
 
+	// DELETE: Mantiene mensaje
 	utils.SendSuccess(c, http.StatusOK, "Rol eliminado correctamente", nil)
 }
