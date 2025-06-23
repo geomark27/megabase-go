@@ -2,6 +2,7 @@
 
 ## 📁 Estructura final que vamos a crear:
 
+
 ```
 internal/
 ├── app/
