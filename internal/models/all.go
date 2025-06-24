@@ -4,5 +4,5 @@ package models
 var AllModels = []interface{}{        
     &Role{},
     &User{},
-    // Añade aquí tus nuevos modelos, e.g.: &Product{},
+    &Citizen{},
 }

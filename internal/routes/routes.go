@@ -89,6 +89,29 @@ func Setup() *gin.Engine {
 				users.GET("/check-username", userHandler.CheckUsernameAvailability)
 				users.GET("/check-email", userHandler.CheckEmailAvailability)
 			}
+
+			// Grupo de rutas para ciudadanos
+			citizens := protected.Group("/citizens")
+			{
+				citizenHandler := handlers.NewCitizenHandler()
+				
+				// CRUD básico
+				citizens.GET("", citizenHandler.GetAllCitizens)
+				citizens.POST("", citizenHandler.CreateCitizen)
+				citizens.GET("/:id", citizenHandler.GetCitizenByID)
+				citizens.PUT("/:id", citizenHandler.UpdateCitizen)
+				citizens.DELETE("/:id", citizenHandler.DeleteCitizen)
+				
+				// Búsquedas específicas
+				citizens.GET("/email/:email", citizenHandler.GetCitizenByEmail)
+				citizens.GET("/identification/:numero", citizenHandler.GetCitizenByIdentification)
+				citizens.GET("/razon-social/:razon", citizenHandler.GetCitizenByRazonSocial)
+				
+				// Verificaciones de disponibilidad
+				citizens.GET("/check/identification/:numero", citizenHandler.CheckIdentificationAvailability)
+				citizens.GET("/check/email/:email", citizenHandler.CheckEmailAvailability)
+				citizens.GET("/check/razon-social/:razon", citizenHandler.CheckRazonSocialAvailability)
+			}
 		}
 
 		// Ruta de información de la API (pública)

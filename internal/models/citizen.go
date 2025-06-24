@@ -9,7 +9,7 @@ import (
 
 // Contribuyente representa tanto a una Persona Natural como a una Sociedad (Persona Jurídica)
 // registrada en el sistema, principalmente para fines fiscales y de facturación.
-type Contribuyente struct {
+type Citizen struct {
 	// --- CAMPOS DE AUDITORÍA (GORM) ---
 	gorm.Model // Incluye ID, CreatedAt, UpdatedAt, DeletedAt
 
