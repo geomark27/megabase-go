@@ -5,4 +5,5 @@ var AllModels = []interface{}{
     &Role{},
     &User{},
     &Citizen{},
+    &Company{},
 }

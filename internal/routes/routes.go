@@ -21,7 +21,7 @@ func Setup() *gin.Engine {
 	// 1. Permitir explícitamente el origen de tu frontend
 	config.AllowOrigins = []string{os.Getenv("FRONT_URL")}
 	// 2. Permitir que el navegador envíe y reciba cookies
-	config.AllowCredentials = true 
+	config.AllowCredentials = true
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
 	router.Use(cors.New(config))
@@ -59,6 +59,9 @@ func Setup() *gin.Engine {
 			auth.POST("/logout", authHandler.Logout)
 		}
 
+		consultHandler := handlers.NewConsultHandler()
+		v1.POST("/consult", consultHandler.Consultar)
+
 		// Rutas protegidas (requieren autenticación)
 		protected := v1.Group("/")
 		protected.Use(authMiddleware.RequireAuth())
@@ -94,23 +97,34 @@ func Setup() *gin.Engine {
 			citizens := protected.Group("/citizens")
 			{
 				citizenHandler := handlers.NewCitizenHandler()
-				
+
 				// CRUD básico
 				citizens.GET("", citizenHandler.GetAllCitizens)
 				citizens.POST("", citizenHandler.CreateCitizen)
 				citizens.GET("/:id", citizenHandler.GetCitizenByID)
 				citizens.PUT("/:id", citizenHandler.UpdateCitizen)
 				citizens.DELETE("/:id", citizenHandler.DeleteCitizen)
-				
+
 				// Búsquedas específicas
 				citizens.GET("/email/:email", citizenHandler.GetCitizenByEmail)
 				citizens.GET("/identification/:numero", citizenHandler.GetCitizenByIdentification)
 				citizens.GET("/razon-social/:razon", citizenHandler.GetCitizenByRazonSocial)
-				
+
 				// Verificaciones de disponibilidad
 				citizens.GET("/check/identification/:numero", citizenHandler.CheckIdentificationAvailability)
 				citizens.GET("/check/email/:email", citizenHandler.CheckEmailAvailability)
 				citizens.GET("/check/razon-social/:razon", citizenHandler.CheckRazonSocialAvailability)
+			}
+
+			// Grupo de rutas para compañías
+			companies := protected.Group("/companies")
+			{
+				companyHandler := handlers.NewCompanyHandler()
+				companies.POST("", companyHandler.CreateCompany)
+				companies.GET("", companyHandler.GetCompanies)
+				companies.GET("/:id", companyHandler.GetCompanyByID)
+				companies.PUT("/:id", companyHandler.UpdateCompany)
+				companies.DELETE("/:id", companyHandler.DeleteCompany)
 			}
 		}
 
@@ -125,13 +139,13 @@ func Setup() *gin.Engine {
 				},
 				"endpoints": gin.H{
 					"auth": gin.H{
-						"login":     "POST /api/v1/auth/login",
-						"register":  "POST /api/v1/auth/register",
-						"refresh":   "POST /api/v1/auth/refresh",
-						"logout":    "POST /api/v1/auth/logout",
-						"profile":   "GET /api/v1/profile (protected)",
-						"check":     "GET /api/v1/check-auth (protected)",
-						"password":  "POST /api/v1/change-password (protected)",
+						"login":    "POST /api/v1/auth/login",
+						"register": "POST /api/v1/auth/register",
+						"refresh":  "POST /api/v1/auth/refresh",
+						"logout":   "POST /api/v1/auth/logout",
+						"profile":  "GET /api/v1/profile (protected)",
+						"check":    "GET /api/v1/check-auth (protected)",
+						"password": "POST /api/v1/change-password (protected)",
 					},
 					"roles": gin.H{
 						"create": "POST /api/v1/roles (protected)",

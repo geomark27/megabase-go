@@ -96,7 +96,7 @@ func (s *CitizenService) GetCitizenByEmail(email string) (*dto.CitizenResponse, 
 
 	if err := db.Where("email = ?", email).First(&citizen).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("citizen not found with this email")
+			return nil, errors.New("ciudadano no encontrado")
 		}
 		return nil, err
 	}
@@ -280,7 +280,7 @@ func (s *CitizenService) validateUniqueEmail(email string, excludeID uint) error
 	}
 
 	if count > 0 {
-		return errors.New("email already exists")
+		return errors.New("Email ya esta registrado")
 	}
 
 	return nil
@@ -535,4 +535,8 @@ func calculateAge(birthDate time.Time) int {
 	}
 	
 	return age
+}
+
+func (s *CitizenService) ValidateDNI(numeroIdentificacion string) (string, error) {
+	return numeroIdentificacion, nil
 }
